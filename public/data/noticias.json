@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Nueva Línea de Crédito para Vivienda",
+    "date": "15/03/2025",
+    "summary": "CAPRES anuncia una nueva línea de crédito para vivienda con tasas preferenciales para socios activos."
+  },
+  {
+    "id": 2,
+    "title": "Asamblea General Ordinaria",
+    "date": "10/03/2025",
+    "summary": "Se informa a todos los socios sobre la celebración de la Asamblea General Ordinaria el próximo mes de abril."
+  },
+  {
+    "id": 3,
+    "title": "Capacitación Financiera para Socios",
+    "date": "05/03/2025",
+    "summary": "CAPRES organizará talleres gratuitos sobre educación financiera básica para todos los socios interesados."
+  }
+]

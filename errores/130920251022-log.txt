@@ -1,0 +1,15 @@
+Runtime TypeError
+
+
+Cannot read properties of undefined (reading 'CodSocio')
+
+app\dashboard\page.js (75:41) @ DashboardPage
+
+
+  73 |           haberesData={dashboardData.haberes}
+  74 |           prestamosData={dashboardData.prestamos || []}
+> 75 |           codSocio={dashboardData.socio.CodSocio}
+     |                                         ^
+  76 |         />
+  77 |       </main>
+  78 |     </div>

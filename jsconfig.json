@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "*"
+            ]
+        }
+    },
+    "include": [
+        "next-env.d.ts",
+        "**/*.js",
+        "**/*.jsx",
+        ".next/types/**/*.js",
+        "lib/mail.js",
+        "next.config.mjs"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

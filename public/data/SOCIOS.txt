@@ -1,0 +1,6 @@
+"CodSocio";"NombreCompleto";"Estatus";"NroCtaBanco";"Frecuencia";"CodigoTN";"FechaIngreso";"PorAporteS";"PorAporteP";"SaldoInicial";"SaldoActual";"FecUltimoPrestamo";"Estado";"Organismo";"Telefonos";"CodInterno";"FechaUltRecPago";"MtoUltRecPago";"FechaEgreso";"FechaRegistro";"UltimaModificacion";"Email";"CodCargo";"Usuario";"Pcname"
+6009;"Pausolino      Vargas Salerno";"A";"00235700739";"Q";1;24/8/1995 0:00:00;0,00;12,00;0,00;19043,43;;0;1;"";6009,00;14/8/2024 0:00:00;0,00;;;14/8/2024 0:00:00;"";1;"0014";"DESKTOP-IES01DM"
+40339;"Milton Jose    Inciarte Oquend";"I";;"M";99;1/10/1997 0:00:00;0,00;0,00;0,00;0,00;;0;0;;40339,00;;0,00;;;;;0;;
+47449;"Jose Reinaldo  Merchan Lopez";"I";"010210072292";"M";99;1/7/1996 0:00:00;0,00;0,00;0,00;0,00;;0;0;;47449,00;;0,00;;;;;0;;
+236294;"CRESPO RAMOS ARMANDO";"I";"00511008773";"M";99;28/8/1995 0:00:00;0,00;0,00;0,00;0,00;;0;0;;236294,00;;0,00;;;;;0;;
+236833;"Alfredo AntonioDascoli Acuña";"I";"0361009160";"M";99;1/8/1996 0:00:00;0,00;0,00;0,00;0,00;;0;0;;236833,00;;0,00;;;;;0;;
