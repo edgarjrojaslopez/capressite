@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { socios } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { shouldForcePasswordChange } from '@/lib/auth-utils';
 
 if (!process.env.NEXTAUTH_SECRET) {
   throw new Error('NEXTAUTH_SECRET is not set in the environment variables');
@@ -55,33 +56,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // Detectar si la contraseña es la predeterminada
-          let mustChangePassword = false;
-          if (await bcrypt.compare('password123', foundUser.password)) {
-            mustChangePassword = true;
-            console.log('🔄 Usuario con contraseña por defecto detectado, debe cambiar contraseña');
+const mustChangePassword = await shouldForcePasswordChange(foundUser.password);
+            if (mustChangePassword) {
+              console.log('🔄 Usuario con contraseña por defecto detectado, debe cambiar contraseña');
+            }
 
-            // ⚠️ BLOQUEAR autenticación completa con contraseña por defecto
-            // Redirigir directamente a cambiar contraseña sin permitir acceso completo
             return {
               id: foundUser.CodSocio,
               name: foundUser.NombreCompleto,
               email: foundUser.Email || `${foundUser.CodSocio}@capres.com`,
               image: null,
               rol: foundUser.rol || 'socio',
-              mustChangePassword: true,
-              forcePasswordChange: true, // Flag especial para indicar que debe cambiar contraseña
-              redirectTo: '/change-password' // Página existente para cambio de contraseña
+              mustChangePassword,
             };
-          }
-
-          return {
-            id: foundUser.CodSocio,
-            name: foundUser.NombreCompleto,
-            email: foundUser.Email || `${foundUser.CodSocio}@capres.com`,
-            image: null,
-            rol: foundUser.rol || 'socio',
-            mustChangePassword: false,
-          };
 
         } catch (error) {
           console.error('❌ Error en authorize:', error);
@@ -115,8 +102,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.name = user.name;
         token.rol = user.rol;
         token.mustChangePassword = user.mustChangePassword;
-        token.forcePasswordChange = user.forcePasswordChange;
-        token.redirectTo = user.redirectTo;
         token.accessToken = user.id; // Añadir el ID del usuario como accessToken
       }
       return token;
@@ -128,8 +113,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.name = token.name;
         session.user.rol = token.rol;
         session.user.mustChangePassword = token.mustChangePassword;
-        session.user.forcePasswordChange = token.forcePasswordChange;
-        session.user.redirectTo = token.redirectTo;
         session.accessToken = token.accessToken; // Pasar el accessToken a la sesión
       }
       return session;

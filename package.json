@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "cross-env NODE_ENV=production node server.js",
-    "importar-socios": "node scripts/importar_socios.js"
+    "importar-socios": "node scripts/importar_socios.js",
+    "actualizar-socios": "node scripts/actualizar-socios.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -35,6 +36,7 @@
     "react-dom": "^18.2.0",
     "sharp": "^0.34.3",
     "styled-components": "^6.1.19",
+    "update-browserslist-db": "^1.2.3",
     "xlsx": "^0.18.5",
     "zod": "^3.22.2"
   },

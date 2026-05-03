@@ -4,6 +4,8 @@ import { db } from '@/lib/db';
 import { socios } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { shouldForcePasswordChange } from '@/lib/auth-utils';
+import { passwordSchema } from '@/lib/validations/authSchema';
 
 export async function POST(req) {
   try {
@@ -40,12 +42,17 @@ export async function POST(req) {
       );
     }
 
-    console.log('Comparando contraseñas...');
-    console.log('Contraseña proporcionada:', password);
-    console.log('Hash almacenado:', user.password);
+    // Validar la complejidad de la contraseña suministrada
+    const passwordValidation = passwordSchema.safeParse(password);
+    if (!passwordValidation.success) {
+      return new Response(
+        JSON.stringify({ error: { message: passwordValidation.error.errors[0].message } }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
+    // Verificar la coincidencia con el hash almacenado
     const isValid = await bcrypt.compare(password, user.password);
-
     if (!isValid) {
       return new Response(
         JSON.stringify({ error: { message: 'Credenciales inválidas' } }),
@@ -53,13 +60,8 @@ export async function POST(req) {
       );
     }
 
-    console.log('Resultado de bcrypt.compare:', isValid);
-
     // Detecta si la contraseña es la predeterminada
-    let mustChangePassword = false;
-    if (await bcrypt.compare('password123', user.password)) {
-      mustChangePassword = true;
-    }
+    const mustChangePassword = await shouldForcePasswordChange(user.password);
 
     // Devolver respuesta en el formato que espera NextAuth
     const responseData = {
