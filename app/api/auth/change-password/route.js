@@ -56,14 +56,20 @@ export async function POST(req) {
       );
     }
 
-    if (newPassword.length < 8) {
-      return new Response(
-JSON.stringify({
-            error: { message: 'La nueva contraseña debe tener al menos 8 caracteres' }
-          })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('7d')
-      .sign(new TextEncoder().encode(JWT_SECRET));
+if (newPassword.length < 8) {
+    return new Response(
+      JSON.stringify({
+        error: { message: 'La nueva contraseña debe tener al menos 8 caracteres' }
+      }),
+      { status: 400 }
+    );
+  }
+
+  // Generate new JWT token
+  const newToken = await new SignJWT({ sub: codSocio })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('7d')
+    .sign(new TextEncoder().encode(JWT_SECRET));
 
     const isProd = process.env.NODE_ENV === 'production';
     const cookie = [

@@ -120,4 +120,5 @@ const mustChangePassword = await shouldForcePasswordChange(foundUser.password);
   },
 
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
 });
