@@ -68,6 +68,7 @@ const mustChangePassword = await shouldForcePasswordChange(foundUser.password);
               image: null,
               rol: foundUser.rol || 'socio',
               mustChangePassword,
+              forcePasswordChange: mustChangePassword,
             };
 
         } catch (error) {
@@ -102,6 +103,7 @@ const mustChangePassword = await shouldForcePasswordChange(foundUser.password);
         token.name = user.name;
         token.rol = user.rol;
         token.mustChangePassword = user.mustChangePassword;
+        token.forcePasswordChange = user.forcePasswordChange;
         token.accessToken = user.id; // Añadir el ID del usuario como accessToken
       }
       return token;
@@ -113,6 +115,7 @@ const mustChangePassword = await shouldForcePasswordChange(foundUser.password);
         session.user.name = token.name;
         session.user.rol = token.rol;
         session.user.mustChangePassword = token.mustChangePassword;
+        session.user.forcePasswordChange = token.forcePasswordChange;
         session.accessToken = token.accessToken; // Pasar el accessToken a la sesión
       }
       return session;

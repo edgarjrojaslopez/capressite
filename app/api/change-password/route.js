@@ -67,7 +67,6 @@ export async function POST(req) {
       .update(socios)
       .set({
         password: hashedNewPassword,
-        mustChangePassword: false // Resetear el flag después del cambio
       })
       .where(eq(socios.CodSocio, session.user.id));
 

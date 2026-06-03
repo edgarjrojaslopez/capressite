@@ -9,7 +9,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 import fs from 'fs';
 import { db } from '../lib/db/index.js';
 import { socios, haberes, prestamos } from '../lib/db/schema.js';
-import { randomUUID } from 'crypto';
+import { sql } from 'drizzle-orm';
 
 // --- CONFIGURACIÓN ---
 const DATA_DIR = path.join(process.cwd(), 'public', 'data');
@@ -22,11 +22,25 @@ const parseCurrency = (str) => {
   return parseFloat(str.trim().replace(/\./g, '').replace(',', '.'));
 };
 
+const cleanCodSocio = (cod) => {
+  if (!cod) return '';
+  return cod.trim().replace(/^0+/, '') || '0';
+};
+
 const parseDate = (str) => {
   if (!str) return null;
-  const [day, month, year] = str.trim().split('/');
-  if (!day || !month || !year) return null;
-  return new Date(`20${year}-${month}-${day}`);
+  const parts = str.trim().split('/');
+  if (parts.length !== 3) return null;
+  let [day, month, year] = parts;
+  day = day.padStart(2, '0');
+  month = month.padStart(2, '0');
+  if (year.length === 2) {
+    year = `20${year}`;
+  } else if (year.length === 3) {
+    year = year.padEnd(4, '0');
+  }
+  const dateObj = new Date(`${year}-${month}-${day}`);
+  return isNaN(dateObj.getTime()) ? null : `${year}-${month}-${day}`;
 };
 
 // --- LÓGICA PRINCIPAL ---
@@ -50,17 +64,18 @@ async function importData() {
   haberesFileContent.split(/\r?\n/).forEach((line) => {
     if (!line.trim()) return;
     const [codSocio, aporteS, aporteP, aporteV, retiroH, totalH] = line.split(';');
-    if (validSocioCodes.has(codSocio.trim())) {
+    const cleanedCod = cleanCodSocio(codSocio);
+    if (validSocioCodes.has(cleanedCod)) {
       haberesToInsert.push({
-        codSocio: codSocio.trim(),
+        codSocio: cleanedCod,
         aporteS: parseCurrency(aporteS),
         aporteP: parseCurrency(aporteP),
         aporteV: parseCurrency(aporteV),
         retiroH: parseCurrency(retiroH),
         totalH: parseCurrency(totalH),
       });
-    } else if (codSocio && codSocio.trim()) {
-      rejectedHaberes.push(codSocio.trim());
+    } else if (cleanedCod) {
+      rejectedHaberes.push(cleanedCod);
     }
   });
 
@@ -71,17 +86,17 @@ async function importData() {
   prestamosFileContent.split(/\r?\n/).forEach((line) => {
     if (!line.trim()) return;
     const [codSocio, tipoPrest, fechaPrest, montoPrest, saldoPrest] = line.split(';');
-    if (validSocioCodes.has(codSocio.trim())) {
+    const cleanedCod = cleanCodSocio(codSocio);
+    if (validSocioCodes.has(cleanedCod)) {
       prestamosToInsert.push({
-        id: randomUUID(),
-        codSocio: codSocio.trim(),
+        codSocio: cleanedCod,
         tipoPrest: tipoPrest.trim(),
         fechaPrest: parseDate(fechaPrest),
         montoPrest: parseCurrency(montoPrest),
         saldoPrest: parseCurrency(saldoPrest),
       });
-    } else if (codSocio && codSocio.trim()) {
-      rejectedPrestamos.push(codSocio.trim());
+    } else if (cleanedCod) {
+      rejectedPrestamos.push(cleanedCod);
     }
   });
 
@@ -111,7 +126,7 @@ async function importData() {
       console.log('  - Limpiando tabla de haberes...');
       await tx.delete(haberes);
       console.log('  - Limpiando tabla de prestamos...');
-      await tx.delete(prestamos);
+      await tx.execute(sql`TRUNCATE TABLE prestamos`);
       if (haberesToInsert.length > 0) {
         console.log(`  - Insertando ${haberesToInsert.length} registros en haberes...`);
         await tx.insert(haberes).values(haberesToInsert);
@@ -129,7 +144,11 @@ async function importData() {
   }
 }
 
-importData().catch((error) => {
-  console.error('❌ Ocurrió un error inesperado en el script:', error);
-  process.exit(1);
-});
+importData()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('❌ Ocurrió un error inesperado en el script:', error);
+    process.exit(1);
+  });

@@ -60,12 +60,12 @@ export async function PUT(request, { params }) {
     const avatarUrl = `/images/${fileName}`;
 
     // Actualizar en la base de datos
-    const result = await db
+    const [resultHeader] = await db
       .update(socios)
       .set({ avatar: avatarUrl })
       .where(eq(socios.CodSocio, codSocio));
 
-    if (result.rowsAffected === 0) {
+    if (resultHeader.affectedRows === 0) {
       // Si el socio no se encuentra, se podría borrar el archivo subido para no dejar basura
       // await unlink(savePath); // (Opcional)
       return NextResponse.json(

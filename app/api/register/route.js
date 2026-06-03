@@ -125,32 +125,38 @@ export async function POST(request) {
     });
 
     // Send verification email using existing email service
-    const emailResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/send-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: email,
-        subject: 'Registro exitoso - CAPRES',
-        userData: {
-          nombre: socio.NombreCompleto,
-          cedula: cedula,
-          email: email
+    let emailSent = false;
+    try {
+      const emailResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        tipoSolicitud: 'registro',
-      }),
-    });
+        body: JSON.stringify({
+          to: email,
+          subject: 'Registro exitoso - CAPRES',
+          userData: {
+            nombre: socio.NombreCompleto,
+            cedula: cedula,
+            email: email
+          },
+          tipoSolicitud: 'registro',
+        }),
+      });
 
-    if (!emailResponse.ok) {
-      console.error('Error sending welcome email:', await emailResponse.text());
-      // Don't fail registration if email fails, just log it
+      if (!emailResponse.ok) {
+        console.error('Error sending welcome email:', await emailResponse.text());
+      } else {
+        emailSent = true;
+      }
+    } catch (emailError) {
+      console.error('Error en el envío de correo de bienvenida:', emailError);
     }
 
     return NextResponse.json(
       { 
         message: 'Registro exitoso. Por favor revisa tu correo para continuar.',
-        emailSent: emailResponse.ok
+        emailSent
       },
       { status: 201 }
     );

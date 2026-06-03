@@ -57,6 +57,21 @@ const parseDecimal = (str) => {
   return isNaN(num) ? null : num.toString();
 };
 
+// Estandariza CodSocio: quita ceros iniciales (consistente con importPrestamos.js e importHaberes.js)
+const cleanCodSocio = (str) => {
+  const value = parseField(str);
+  if (value === null) return null;
+  return value.replace(/^0+/, '') || '0';
+};
+
+const parseDateTime = (str) => {
+  const value = parseField(str);
+  if (!value) return null;
+  // El formato en el archivo es "YYYY-MM-DD HH:MM:SS"
+  const match = value.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+  return match ? value : null;
+};
+
 // --- LÓGICA PRINCIPAL ---
 async function actualizarSocios() {
   console.log('🔵 Iniciando el proceso de actualización de socios activos...');
@@ -103,7 +118,7 @@ async function actualizarSocios() {
 
     // Mapear los campos del archivo a la estructura de la base de datos
     const socioData = {
-      CodSocio: parseField(record.CodSocio),
+      CodSocio: cleanCodSocio(record.CodSocio),
       NombreCompleto: parseField(record.NombreCompleto),
       NroCtaBanco: parseField(record.NroCtaBanco),
       Estatus: parseField(record.Estatus),
@@ -118,6 +133,16 @@ async function actualizarSocios() {
       FechaEgreso: parseDate(record.FechaEgreso),
       FechaRegistro: parseDate(record.FechaRegistro),
       Email: parseField(record.Email),
+      Frecuencia: parseField(record.Frecuencia),
+      CodigoTN: parseField(record.CodigoTN),
+      Organismo: parseField(record.Organismo),
+      CodInterno: parseField(record.CodInterno),
+      FechaUltRecPago: parseDateTime(record.FechaUltRecPago),
+      MtoUltRecPago: parseDecimal(record.MtoUltRecPago),
+      UltimaModificacion: parseDateTime(record.UltimaModificacion),
+      CodCargo: parseField(record.CodCargo),
+      Usuario: parseField(record.Usuario),
+      Pcname: parseField(record.Pcname),
     };
 
     try {

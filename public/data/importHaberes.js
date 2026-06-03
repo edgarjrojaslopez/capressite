@@ -36,13 +36,13 @@ function cleanCodSocio(cod) {
 
 async function importHaberes() {
   try {
-    const filePath = path.resolve(__dirname, './haberes.txt');
+    const filePath = path.resolve(__dirname, './HABERES.TXT');
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`❌ El archivo no existe en: ${filePath}`);
     }
 
-    console.log('✅ Leyendo archivo haberes.txt...');
+    console.log('✅ Leyendo archivo HABERES.TXT...');
     const data = fs.readFileSync(filePath, 'utf-8');
     const lines = data.trim().split('\n');
 

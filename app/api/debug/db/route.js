@@ -4,6 +4,7 @@ export const runtime = 'nodejs';
 import { db } from '@/lib/db';
 import { socios, haberes, prestamos } from '@/lib/db/schema';
 import { NextResponse } from 'next/server';
+import { sql } from 'drizzle-orm';
 
 export async function GET(request) {
   try {
@@ -26,17 +27,17 @@ export async function GET(request) {
 
     console.log('🔍 Usuarios encontrados:', sampleUsers.length);
 
-    // Obtener estadísticas
-    const totalSocios = await db.select().from(socios);
-    const totalHaberes = await db.select().from(haberes);
-    const totalPrestamos = await db.select().from(prestamos);
+    // Obtener estadísticas de forma eficiente
+    const [sociosCountResult] = await db.select({ count: sql`count(*)` }).from(socios);
+    const [haberesCountResult] = await db.select({ count: sql`count(*)` }).from(haberes);
+    const [prestamosCountResult] = await db.select({ count: sql`count(*)` }).from(prestamos);
 
     const debugInfo = {
       conexion: 'exitosa',
       estadisticas: {
-        totalSocios: totalSocios.length,
-        totalHaberes: totalHaberes.length,
-        totalPrestamos: totalPrestamos.length
+        totalSocios: Number(sociosCountResult?.count || 0),
+        totalHaberes: Number(haberesCountResult?.count || 0),
+        totalPrestamos: Number(prestamosCountResult?.count || 0)
       },
       usuariosEjemplo: sampleUsers,
       tablas: {

@@ -242,6 +242,7 @@ export default function DashboardContent({
                 src={avatar}
                 alt="Avatar"
                 className="w-36 h-36 rounded-full object-cover border-4 border-blue-500 shadow-xl transition-transform duration-300 group-hover:scale-105"
+                onError={() => setAvatar('/avatar-default.png')}
               />
               <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-3 rounded-full cursor-pointer hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-110">
                 <svg

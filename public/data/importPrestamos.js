@@ -34,18 +34,26 @@ function cleanCodSocio(cod) {
   return cleaned.replace(/^0+/, '') || '0';
 }
 
-// Función para convertir fecha DD/MM/YY a YYYY-MM-DD
+// Función para convertir fecha D/M/YYYY, D/M/YY o D/M/YYY a YYYY-MM-DD
 function parseDate(dateStr) {
   const cleaned = cleanValue(dateStr);
   if (cleaned === null) return null;
 
-  const match = cleaned.match(/(\d{2})\/(\d{2})\/(\d{2})/);
+  const match = cleaned.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
   if (!match) return null;
 
-  const [, day, month, year] = match;
-  const fullYear = `20${year}`; // Asumimos siglo XXI (2000-2099)
-  const dateObj = new Date(`${fullYear}-${month}-${day}`);
+  let [, day, month, year] = match;
 
+  day = day.padStart(2, '0');
+  month = month.padStart(2, '0');
+
+  if (year.length === 2) {
+    year = `20${year}`;
+  } else if (year.length === 3) {
+    year = year.padEnd(4, '0');
+  }
+
+  const dateObj = new Date(`${year}-${month}-${day}`);
   if (isNaN(dateObj.getTime())) return null;
 
   return dateObj.toISOString().split('T')[0];
@@ -53,19 +61,23 @@ function parseDate(dateStr) {
 
 async function importPrestamos() {
   try {
-    const filePath = path.resolve(__dirname, './prestamos.txt');
+    const filePath = path.resolve(__dirname, './PRESTAMOS.TXT');
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`❌ El archivo no existe en: ${filePath}`);
     }
 
-    console.log('✅ Leyendo archivo prestamos.txt...');
+    console.log('✅ Leyendo archivo PRESTAMOS.TXT...');
     const data = fs.readFileSync(filePath, 'utf-8');
     const lines = data.trim().split('\n');
 
     console.log(`✅ Se encontraron ${lines.length} filas`);
 
     const db = await connection.getConnection();
+
+    // Limpiar la tabla antes de insertar (archivo es un snapshot completo)
+    await db.execute('DELETE FROM prestamos');
+    console.log('🗑️ Tabla prestamos limpiada para reinserción completa');
 
     let successCount = 0;
     let errorCount = 0;
@@ -109,12 +121,7 @@ async function importPrestamos() {
         // Insertar en la tabla prestamos
         await db.execute(
           `INSERT INTO prestamos (codSocio, tipoPrest, fechaPrest, montoPrest, saldoPrest)
-           VALUES (?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE
-             tipoPrest = VALUES(tipoPrest),
-             fechaPrest = VALUES(fechaPrest),
-             montoPrest = VALUES(montoPrest),
-             saldoPrest = VALUES(saldoPrest)`,
+           VALUES (?, ?, ?, ?, ?)`,
           [
             codSocio,
             parsedTipoPrest,

@@ -18,7 +18,7 @@ export async function POST(req) {
     }
 
     // ✅ Verificación específica para cambio forzado
-    if (!session.user.forcePasswordChange) {
+    if (!session.user.forcePasswordChange && !session.user.mustChangePassword) {
       return NextResponse.json(
         { error: 'Operación no permitida' },
         { status: 403 }
