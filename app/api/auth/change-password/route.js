@@ -56,7 +56,7 @@ export async function POST(req) {
       );
     }
 
-if (newPassword.length < 8) {
+  if (newPassword.length < 8) {
     return new Response(
       JSON.stringify({
         error: { message: 'La nueva contraseña debe tener al menos 8 caracteres' }
@@ -64,6 +64,13 @@ if (newPassword.length < 8) {
       { status: 400 }
     );
   }
+
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  await db
+    .update(socios)
+    .set({ password: hashedNewPassword })
+    .where(eq(socios.CodSocio, codSocio));
 
   // Generate new JWT token
   const newToken = await new SignJWT({ sub: codSocio })

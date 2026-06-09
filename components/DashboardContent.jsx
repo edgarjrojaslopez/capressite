@@ -62,6 +62,11 @@ export default function DashboardContent({
   const disponibleBase = (haberData?.totalH || 0) * 0.8;
   const disponibleNeto = Math.max(0, disponibleBase - totalPrestamos);
 
+  const porcentajePagadoUltimo = ultimoPrestamo
+    ? ((ultimoPrestamo.montoPrest - ultimoPrestamo.saldoPrest) / ultimoPrestamo.montoPrest) * 100
+    : 0;
+  const puedeRefinanciar = porcentajePagadoUltimo >= 50;
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
@@ -357,6 +362,41 @@ export default function DashboardContent({
               <span className="font-semibold">
                 {formatNumber(ultimoPrestamo.saldoPrest)}
               </span>
+            </div>
+          </div>
+        )}
+        {/* === ARTÍCULO 73 — REFINANCIAMIENTO === */}
+        {ultimoPrestamo && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-xl p-5 shadow-md">
+            <h4 className="text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
+              📋 Art. 73 — Refinanciamiento de Préstamo
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
+              <div>
+                <span className="font-medium text-gray-600">Saldo préstamo activo:</span>{' '}
+                <span className="text-gray-800 font-bold">
+                  {formatNumber(ultimoPrestamo.saldoPrest)}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">Porcentaje pagado:</span>{' '}
+                <span className={`font-bold ${puedeRefinanciar ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {porcentajePagadoUltimo.toFixed(1)}%
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">Disponible para solicitar:</span>{' '}
+                <span className="text-gray-800 font-bold">
+                  {formatNumber(disponibleBase)}
+                </span>
+              </div>
+            </div>
+            <div className={`rounded-lg p-3 text-xs ${puedeRefinanciar ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'}`}>
+              {puedeRefinanciar ? (
+                <p>✅ Has cancelado más del 50% del préstamo anterior. Puedes solicitar un nuevo préstamo según el Art. 73 de los estatutos. Del nuevo préstamo, una parte se destinará a cancelar el saldo adeudado y la otra a satisfacer el nuevo préstamo solicitado. En ningún caso podrá afectarse la reserva legal del afiliado.</p>
+              ) : (
+                <p>⏳ Has pagado el <strong>{porcentajePagadoUltimo.toFixed(1)}%</strong> del préstamo anterior. Según el Art. 73 de los estatutos, debes haber cancelado al menos el <strong>50%</strong> para solicitar un nuevo préstamo. Una vez cumplido, una parte del nuevo préstamo se utilizará para cancelar el saldo adeudado y la otra para satisfacer el préstamo solicitado. En ningún caso podrá afectarse la reserva legal del afiliado.</p>
+              )}
             </div>
           </div>
         )}

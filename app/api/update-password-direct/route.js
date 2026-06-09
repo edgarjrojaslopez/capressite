@@ -69,12 +69,11 @@ export async function POST(req) {
     // Hashear la nueva contraseña
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Actualizar la contraseña en la base de datos y resetear todos los flags
+    // Actualizar la contraseña en la base de datos
     await db
       .update(socios)
       .set({
         password: hashedNewPassword,
-        mustChangePassword: false // Resetear el flag
       })
       .where(eq(socios.CodSocio, userId));
 
